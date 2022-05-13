@@ -1,0 +1,14 @@
+[Unit]
+Description=Script to start MoneyTrack REST API server
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+User=root
+Environment=GIN_MODE=release
+WorkingDirectory=/opt/moneytrack
+ExecStart=/opt/moneytrack/moneytrack
+
+[Install]
+WantedBy=multi-user.target
