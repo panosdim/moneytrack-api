@@ -40,6 +40,13 @@ func main() {
 		private.POST("/category", controllers.SaveCategory)
 		private.PUT("/category/:id", controllers.UpdateCategory)
 		private.DELETE("/category/:id", controllers.DeleteCategory)
+
+		// Income API
+		private.GET("/income", controllers.GetIncomes)
+		private.GET("/income/:id", controllers.GetIncome)
+		private.POST("/income", controllers.SaveIncome)
+		private.PUT("/income/:id", controllers.UpdateIncome)
+		private.DELETE("/income/:id", controllers.DeleteIncome)
 	}
 
 	if err := r.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
