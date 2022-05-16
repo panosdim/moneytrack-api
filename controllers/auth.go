@@ -49,12 +49,12 @@ func Login(c *gin.Context) {
 	u := models.User{}
 
 	if err := models.DB.Model(models.User{}).Where("email = ?", input.Email).Take(&u).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect"})
 		return
 	}
 
 	if err := VerifyPassword(input.Password, u.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect"})
 		return
 	}
 

@@ -39,7 +39,7 @@ func GetCategory(c *gin.Context) {
 	var category models.Category
 
 	if err := models.DB.Where("user_id = ?", userId).Find(&category, id).Error; err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own categories."})
+		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own categories"})
 		return
 	}
 
@@ -122,7 +122,7 @@ func UpdateCategory(c *gin.Context) {
 	var category models.Category
 
 	if err := models.DB.Where("user_id = ?", userId).Find(&category, id).Error; err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own categories."})
+		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own categories"})
 		return
 	}
 
@@ -161,7 +161,7 @@ func DeleteCategory(c *gin.Context) {
 	var count int64
 	models.DB.Model(models.Expense{}).Where("user_id = ? AND category = ?", userId, id).Count(&count)
 	if count > 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "category is connected with one or more expense and can't be deleted."})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "category is connected with one or more expense and can't be deleted"})
 		return
 	}
 

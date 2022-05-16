@@ -59,7 +59,7 @@ func GetIncome(c *gin.Context) {
 	var income models.Income
 
 	if err := models.DB.Where("user_id = ?", userId).Find(&income, id).Error; err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own incomes."})
+		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own incomes"})
 		return
 	}
 
@@ -128,7 +128,7 @@ func UpdateIncome(c *gin.Context) {
 	var income models.Income
 
 	if err := models.DB.Where("user_id = ?", userId).Find(&income, id).Error; err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own incomes."})
+		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own incomes"})
 		return
 	}
 
