@@ -34,6 +34,9 @@ func main() {
 		// User Info
 		private.GET("/user", controllers.CurrentUser)
 
+		// Years
+		private.GET("/years", controllers.Years)
+
 		// Category API
 		private.GET("/category", controllers.GetCategories)
 		private.GET("/category/:id", controllers.GetCategory)
