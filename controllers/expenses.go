@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"fmt"
 	"moneytrack-api/models"
 	"moneytrack-api/utils/token"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +11,7 @@ import (
 )
 
 type GetExpenseInput struct {
-	Years string `form:"years"`
+	AfterDate time.Time `form:"after_date" time_format:"2006-01-02"`
 }
 
 func GetExpenses(c *gin.Context) {
@@ -27,13 +25,9 @@ func GetExpenses(c *gin.Context) {
 	var expenses []models.Expense
 	var input GetExpenseInput
 
-	c.Bind(&input)
-
-	if numOfYears, err := strconv.Atoi(input.Years); err == nil {
-		//return only last years expenses
-		currentYear := time.Now().Year()
-		fromYear := fmt.Sprintf("%d-01-01", currentYear-numOfYears)
-		if err := models.DB.Order("date desc").Find(&expenses, "user_id = ? AND date >= ?", userId, fromYear).Error; err != nil {
+	if c.ShouldBind(&input) == nil {
+		//return only expenses that are after requested date
+		if err := models.DB.Order("date desc").Find(&expenses, "user_id = ? AND date >= ?", userId, input.AfterDate).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
