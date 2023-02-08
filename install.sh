@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ "$(id -u)" != "0" ]; then
     exec sudo bash "$0" "$@"
 fi
@@ -16,7 +16,7 @@ is_service_exists() {
 INSTALL_PATH=/opt/moneytrack
 EXEC_NAME=moneytrack
 SERVICE_NAME=$EXEC_NAME.service
-GO_CMD=`which go`
+GO_CMD=/usr/local/go/bin/go
 
 # Build software
 
