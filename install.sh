@@ -16,10 +16,11 @@ is_service_exists() {
 INSTALL_PATH=/opt/moneytrack
 EXEC_NAME=moneytrack
 SERVICE_NAME=$EXEC_NAME.service
+GO_CMD=`which go`
 
 # Build software
 
-go build -o $EXEC_NAME
+$GO_CMD build -o $EXEC_NAME
 ret_code=$?
 if [ $ret_code != 0 ]; then
     printf "Error: [%d] when building executable. Check that you have go tools installed." $ret_code
