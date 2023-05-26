@@ -17,6 +17,7 @@ INSTALL_PATH=/opt/moneytrack
 EXEC_NAME=moneytrack
 SERVICE_NAME=$EXEC_NAME.service
 GO_CMD=/usr/local/go/bin/go
+NGINX_CONF_PATH=/etc/nginx/conf.d
 
 # Build software
 
@@ -42,6 +43,8 @@ if [ -f .env ] && [ -f $EXEC_NAME ] && [ -f $SERVICE_NAME ]; then
         cp $SERVICE_NAME /usr/lib/systemd/system
         systemctl start $SERVICE_NAME
         systemctl enable $SERVICE_NAME
+        sudo cp moneytrack.conf $NGINX_CONF_PATH
+        sudo nginx -s reload
     fi
 else
     echo "Not all needed files found. Installation failed."
