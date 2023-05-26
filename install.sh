@@ -42,8 +42,8 @@ if [ -f .env ] && [ -f $EXEC_NAME ] && [ -f $SERVICE_NAME ]; then
         cp $SERVICE_NAME /usr/lib/systemd/system
         systemctl start $SERVICE_NAME
         systemctl enable $SERVICE_NAME
-        sudo cp $EXEC_NAME.conf $NGINX_CONF_PATH
-        sudo nginx -s reload
+        cp $EXEC_NAME.conf $NGINX_CONF_PATH
+        nginx -s reload
     fi
 else
     echo "Not all needed files found. Installation failed."
