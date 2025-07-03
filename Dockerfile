@@ -1,11 +1,5 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS builder
-
-# Set build arguments for cross-compilation
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-ARG TARGETOS
-ARG TARGETARCH
+FROM golang:1.23-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -22,11 +16,11 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application with proper cross-compilation
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o main .
+# Build the application
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o main .
 
 # Final stage
-FROM --platform=$TARGETPLATFORM alpine:latest
+FROM alpine:latest
 
 # Install ca-certificates for HTTPS requests
 RUN apk --no-cache add ca-certificates
