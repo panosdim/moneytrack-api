@@ -25,11 +25,11 @@ jobs:
                   GOARCH: arm64
               run: go build -v -o moneytrack-linux-arm64
 
-            - name: Build Windows AMD64
+            - name: Build Linux AMD64
               env:
-                  GOOS: windows
+                  GOOS: linux
                   GOARCH: amd64
-              run: go build -v -o moneytrack-windows-amd64.exe
+              run: go build -v -o moneytrack-linux-amd64
 
             - name: Upload binary artifacts
               uses: actions/upload-artifact@v4
@@ -37,7 +37,7 @@ jobs:
                   name: go-binaries
                   path: |
                       moneytrack-linux-arm64
-                      moneytrack-windows-amd64.exe
+                      moneytrack-linux-amd64
 
     docker:
         runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   context: .
-                  platforms: linux/arm64,windows/amd64
+                  platforms: linux/arm64,linux/amd64
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
