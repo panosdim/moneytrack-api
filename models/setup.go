@@ -7,16 +7,12 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/joho/godotenv"
 )
 
 var DB *gorm.DB
 
 func ConnectDataBase() {
 	var err error
-	if err = godotenv.Load(".env"); err != nil {
-		log.Fatalf("Error loading .env file")
-	}
 
 	DbDriver := os.Getenv("DB_DRIVER")
 	DbHost := os.Getenv("DB_HOST")
