@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"moneytrack-api/controllers"
 	"moneytrack-api/middlewares"
 	"moneytrack-api/models"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,7 +57,7 @@ func main() {
 		private.DELETE("/expense/:id", controllers.DeleteExpense)
 	}
 
-	if err := r.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+	if err := r.Run(":8000"); err != nil {
 		log.Fatalf("Error starting server")
 	}
 }

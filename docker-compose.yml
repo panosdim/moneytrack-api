@@ -22,7 +22,7 @@ services:
         env_file:
             - .env
         ports:
-            - '${PORT}:${PORT}'
+            - '${PORT}:8000'
         networks:
             - moneytrack-network
 
