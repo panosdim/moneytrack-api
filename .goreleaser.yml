@@ -40,8 +40,8 @@ dockers:
 
 release:
   github:
-    owner: {{ (split "/" .Env.GITHUB_REPOSITORY)._0 }}
-    name: {{ (split "/" .Env.GITHUB_REPOSITORY)._1 }}
+    owner: "{{ (split \"/\" .Env.GITHUB_REPOSITORY)._0 }}"
+    name: "{{ (split \"/\" .Env.GITHUB_REPOSITORY)._1 }}"
 
 changelog:
   sort: asc
