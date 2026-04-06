@@ -28,6 +28,8 @@ dockers:
     dockerfile: Dockerfile
     use: buildx
     build_flag_templates:
+      - --builder=default
+      - --push
       - --platform=linux/amd64,linux/arm64
       - --label=org.opencontainers.image.title={{ .ProjectName }}
       - --label=org.opencontainers.image.url={{ .GitURL }}
