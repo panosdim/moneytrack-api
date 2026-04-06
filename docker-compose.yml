@@ -29,6 +29,7 @@ services:
 volumes:
     mysql-data:
 
+
 networks:
     moneytrack-network:
         driver: bridge

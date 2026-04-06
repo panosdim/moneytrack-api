@@ -18,7 +18,7 @@ func GetIncomes(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -45,14 +45,21 @@ func GetIncome(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	id := c.Param("id")
 	var income models.Income
 
-	if err := models.DB.Where("user_id = ?", userId).Find(&income, id).Error; err != nil {
+	// First check if income exists
+	if err := models.DB.First(&income, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "income not found or access denied"})
+		return
+	}
+
+	// Check if it belongs to the user
+	if income.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own incomes"})
 		return
 	}
@@ -71,7 +78,7 @@ func SaveIncome(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -79,6 +86,12 @@ func SaveIncome(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate date format
+	if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
 		return
 	}
 
@@ -106,7 +119,7 @@ func UpdateIncome(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -121,9 +134,24 @@ func UpdateIncome(c *gin.Context) {
 
 	var income models.Income
 
-	if err := models.DB.Where("user_id = ?", userId).Find(&income, id).Error; err != nil {
+	// First check if income exists
+	if err := models.DB.First(&income, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "income not found or access denied"})
+		return
+	}
+
+	// Check if it belongs to the user
+	if income.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own incomes"})
 		return
+	}
+
+	// Validate date format if provided
+	if input.Date != "" {
+		if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
+			return
+		}
 	}
 
 	if err := models.DB.Model(&income).Updates(input).Error; err != nil {
@@ -139,7 +167,7 @@ func DeleteIncome(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

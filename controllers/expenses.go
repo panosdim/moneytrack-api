@@ -18,7 +18,7 @@ func GetExpenses(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -45,14 +45,21 @@ func GetExpense(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	id := c.Param("id")
 	var expense models.Expense
 
-	if err := models.DB.Where("user_id = ?", userId).Find(&expense, id).Error; err != nil {
+	// First check if expense exists
+	if err := models.DB.First(&expense, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "expense not found or access denied"})
+		return
+	}
+
+	// Check if it belongs to the user
+	if expense.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own expenses"})
 		return
 	}
@@ -72,7 +79,7 @@ func SaveExpense(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -83,10 +90,19 @@ func SaveExpense(c *gin.Context) {
 		return
 	}
 
+	// Validate date format
+	if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
+		return
+	}
+
 	// Check if Category belong to user
 	var category models.Category
-
-	if err := models.DB.Where("user_id = ?", userId).Find(&category, input.Category).Error; err != nil {
+	if err := models.DB.First(&category, input.Category).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "invalid category"})
+		return
+	}
+	if category.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "category belong to another user"})
 		return
 	}
@@ -116,7 +132,7 @@ func UpdateExpense(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -131,16 +147,34 @@ func UpdateExpense(c *gin.Context) {
 
 	var expense models.Expense
 
-	if err := models.DB.Where("user_id = ?", userId).Find(&expense, id).Error; err != nil {
+	// First check if expense exists
+	if err := models.DB.First(&expense, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "expense not found or access denied"})
+		return
+	}
+
+	// Check if it belongs to the user
+	if expense.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own expenses"})
 		return
+	}
+
+	// Validate date format if provided
+	if input.Date != "" {
+		if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
+			return
+		}
 	}
 
 	// Check if Category belong to user
 	if input.Category != 0 {
 		var category models.Category
-
-		if err := models.DB.Where("user_id = ?", userId).Find(&category, input.Category).Error; err != nil {
+		if err := models.DB.First(&category, input.Category).Error; err != nil {
+			c.JSON(http.StatusForbidden, gin.H{"error": "invalid category"})
+			return
+		}
+		if category.UserID != userId {
 			c.JSON(http.StatusForbidden, gin.H{"error": "category belong to another user"})
 			return
 		}
@@ -159,7 +193,7 @@ func DeleteExpense(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -4,14 +4,14 @@ name: Build and Create Multi-Platform Docker Containers
 
 on:
     push:
-        branches: ['main']
+        branches: [ 'main' ]
+        tags: [ 'v*' ]
     pull_request:
-        branches: ['main']
+        branches: [ 'main' ]
 
 jobs:
     docker:
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         permissions:
             contents: read
             packages: write
@@ -37,7 +37,7 @@ jobs:
                       type=ref,event=branch
                       type=ref,event=pr
                       type=sha,prefix={{branch}}-
-                      type=raw,value=latest,enable={{is_default_branch}}
+                      type=raw,value={{sha}},enable={{is_default_branch}}
 
             - name: Build and push Docker image
               uses: docker/build-push-action@v5

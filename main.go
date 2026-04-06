@@ -8,9 +8,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	if err := godotenv.Load(".env.local"); err != nil {
+		log.Println("Info: .env.local not found, using system environment variables")
+	}
 
 	models.ConnectDataBase()
 

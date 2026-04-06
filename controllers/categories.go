@@ -13,7 +13,7 @@ func GetCategories(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -31,14 +31,21 @@ func GetCategory(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	id := c.Param("id")
 	var category models.Category
 
-	if err := models.DB.Where("user_id = ?", userId).Find(&category, id).Error; err != nil {
+	// First check if category exists
+	if err := models.DB.First(&category, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "category not found or access denied"})
+		return
+	}
+
+	// Check if it belongs to the user
+	if category.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only view your own categories"})
 		return
 	}
@@ -55,7 +62,7 @@ func SaveCategory(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -98,7 +105,7 @@ func UpdateCategory(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -111,18 +118,25 @@ func UpdateCategory(c *gin.Context) {
 
 	id := c.Param("id")
 
-	// Check if category with same name for the user already exists
-	var count int64
-	models.DB.Model(models.Category{}).Where("user_id = ? AND category = ?", userId, input.Category).Count(&count)
-	if count > 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "category with same name already exist"})
+	var category models.Category
+
+	// First check if category exists
+	if err := models.DB.First(&category, id).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "category not found or access denied"})
 		return
 	}
 
-	var category models.Category
-
-	if err := models.DB.Where("user_id = ?", userId).Find(&category, id).Error; err != nil {
+	// Check if it belongs to the user
+	if category.UserID != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own categories"})
+		return
+	}
+
+	// Check if category with same name already exists (excluding current category)
+	var count int64
+	models.DB.Model(models.Category{}).Where("category = ? AND id != ?", input.Category, id).Count(&count)
+	if count > 0 {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "category with same name already exist"})
 		return
 	}
 
@@ -139,7 +153,7 @@ func DeleteCategory(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

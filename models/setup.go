@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
@@ -21,9 +21,9 @@ func ConnectDataBase() {
 	DbName := os.Getenv("DB_NAME")
 	DbPort := os.Getenv("DB_PORT")
 
-	DBUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=False&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
 
-	DB, err = gorm.Open(DbDriver, DBUrl)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		fmt.Println("Cannot connect to database ", DbDriver)

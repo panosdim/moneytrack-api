@@ -1,0 +1,18 @@
+services:
+  mysql-dev:
+    image: mysql:8.0
+    container_name: moneytrack-db-dev
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - ./moneytrack.sql:/docker-entrypoint-initdb.d/moneytrack.sql
+      - mysql-dev-data:/var/lib/mysql
+
+volumes:
+  mysql-dev-data:

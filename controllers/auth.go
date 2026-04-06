@@ -14,7 +14,7 @@ func CurrentUser(c *gin.Context) {
 	userId, err := token.ExtractTokenID(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

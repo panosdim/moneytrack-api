@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
         "gonic",
-        "middlewares"
+        "initdb",
+        "middlewares",
+        "panosdim"
     ]
 }
