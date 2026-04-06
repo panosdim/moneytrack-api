@@ -40,8 +40,8 @@ dockers:
 
 release:
   github:
-    owner: "{{ index (split \"/\" .Env.GITHUB_REPOSITORY) 0 }}"
-    name: "{{ index (split \"/\" .Env.GITHUB_REPOSITORY) 1 }}"
+    owner: panosdim
+    name: moneytrack-api
 
 changelog:
   sort: asc
