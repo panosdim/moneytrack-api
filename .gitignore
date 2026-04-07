@@ -13,5 +13,4 @@
 
 # Dependency directories (remove the comment below to include it)
 .env*
-moneytrack
 __debug_bin*

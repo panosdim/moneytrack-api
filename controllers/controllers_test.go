@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -147,7 +148,11 @@ func createTestCategory(t *testing.T, userID uint, name string) models.Category 
 }
 
 func createTestExpense(t *testing.T, userID uint, category uint, amount float64, date string) models.Expense {
-	expense := models.Expense{UserID: userID, Category: category, Amount: amount, Date: date, Comment: "test expense"}
+	parsedDate, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expense := models.Expense{UserID: userID, Category: category, Amount: amount, Date: models.Date(parsedDate), Comment: "test expense"}
 	if err := models.DB.Create(&expense).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +160,11 @@ func createTestExpense(t *testing.T, userID uint, category uint, amount float64,
 }
 
 func createTestIncome(t *testing.T, userID uint, amount float64, date string) models.Income {
-	income := models.Income{UserID: userID, Amount: amount, Date: date, Comment: "test income"}
+	parsedDate, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		t.Fatal(err)
+	}
+	income := models.Income{UserID: userID, Amount: amount, Date: parsedDate.Format("2006-01-02"), Comment: "test income"}
 	if err := models.DB.Create(&income).Error; err != nil {
 		t.Fatal(err)
 	}
