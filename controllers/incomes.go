@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 )
 
 type GetIncomeInput struct {
@@ -90,15 +89,18 @@ func SaveIncome(c *gin.Context) {
 	}
 
 	// Validate date format
-	if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+	parsedDate, err := time.Parse("2006-01-02", input.Date)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
 		return
 	}
 
-	newIncome := models.Income{}
-
-	copier.Copy(&newIncome, &input)
-	newIncome.UserID = userId
+	newIncome := models.Income{
+		UserID:  userId,
+		Amount:  input.Amount,
+		Comment: input.Comment,
+		Date:    models.Date(parsedDate),
+	}
 
 	if err := models.DB.Create(&newIncome).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -147,16 +149,33 @@ func UpdateIncome(c *gin.Context) {
 	}
 
 	// Validate date format if provided
+	var parsedDate *time.Time
 	if input.Date != "" {
-		if _, err := time.Parse("2006-01-02", input.Date); err != nil {
+		d, err := time.Parse("2006-01-02", input.Date)
+		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
 			return
 		}
+		parsedDate = &d
 	}
 
-	if err := models.DB.Model(&income).Updates(input).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	// Prepare updates
+	updates := map[string]interface{}{}
+	if input.Amount != 0 {
+		updates["amount"] = input.Amount
+	}
+	if parsedDate != nil {
+		updates["date"] = models.Date(*parsedDate)
+	}
+	if input.Comment != "" || input.Comment == "" { // allow empty comment
+		updates["comment"] = input.Comment
+	}
+
+	if len(updates) > 0 {
+		if err := models.DB.Model(&income).Updates(updates).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, income)

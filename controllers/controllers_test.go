@@ -164,7 +164,7 @@ func createTestIncome(t *testing.T, userID uint, amount float64, date string) mo
 	if err != nil {
 		t.Fatal(err)
 	}
-	income := models.Income{UserID: userID, Amount: amount, Date: parsedDate.Format("2006-01-02"), Comment: "test income"}
+	income := models.Income{UserID: userID, Amount: amount, Date: models.Date(parsedDate), Comment: "test income"}
 	if err := models.DB.Create(&income).Error; err != nil {
 		t.Fatal(err)
 	}
