@@ -160,7 +160,7 @@ func UpdateIncome(c *gin.Context) {
 	}
 
 	// Prepare updates
-	updates := map[string]interface{}{}
+	updates := map[string]any{}
 	if input.Amount != 0 {
 		updates["amount"] = input.Amount
 	}
