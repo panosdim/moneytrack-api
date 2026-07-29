@@ -1,7 +1,7 @@
 services:
     mysql:
         image: mysql:8.0
-        container_name: ${DB_HOST}
+        container_name: moneytrack-db
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
